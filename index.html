@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!-- Load d3.js and the geo projection plugin -->
+<script src="https://d3js.org/d3.v4.js"></script>
+<script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
+<script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
+
+<!-- Button -->
+<div>
+  <input type="checkbox" class="checkbox" value="Oil" checked><label>Oil</label>
+  <input type="checkbox" class="checkbox" value="Hydro" checked><label>Hydro</label>
+  <input type="checkbox" class="checkbox" value="Wind" checked><label>Wind</label>
+  <input type="checkbox" class="checkbox" value="Solar" checked><label>Solar</label>
+  <input type="checkbox" class="checkbox" value="Biomass" checked><label>Biomass</label>
+  <input type="checkbox" class="checkbox" value="Gas" checked><label>Gas</label>
+  <input type="checkbox" class="checkbox" value="Geothermal" checked><label>Geothermal</label>
+  <input type="checkbox" class="checkbox" value="Coal" checked><label>Coal</label>
+  <input type="checkbox" class="checkbox" value="Nuclear" checked><label>Nuclear</label>
+  <input type="checkbox" class="checkbox" value="Waste" checked><label>Waste</label>
+  <input type="checkbox" class="checkbox" value="Other" checked><label>Other</label>
+</div>
+
+<!-- Load Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js" integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA==" crossorigin=""></script>
+
+<!-- Create an element where the map will take place -->
+<div id="mapid"></div>
+
+<style>
+#mapid { height: 800px; }
+</style>
+
+
+<script>
+
+var map = L
+  .map('mapid')
+  .setView([47, 2], 5);   // center position + zoom
+
+// Add a tile to the map = a background. Comes from OpenStreetmap
+L.tileLayer(
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+    maxZoom: 6,
+    }).addTo(map);
+
+// Add a svg layer to the map
+L.svg().addTo(map);
+
+d3.csv("https://raw.githubusercontent.com/ajlarivi/power-plant-csvs/main/global_power_plant_database.csv", function(plant_data){
+
+	    var color = d3.scaleOrdinal()
+	      .domain(["Oil", "Hydro", "Wind", "Solar", "Biomass", "Gas", "Geothermal", "Coal", "nuclear", "waste", "other"])
+	      .range([ "#b15928", "#1f78b4", "#5ca2d1", "#ff7f00", "#229a00", "#bc80bd", "#fdbf6f", "#000000", "#4B0AE1", "#e31a1c", "#6a3d9a",  "#b2df8a"])
+
+	    var valueExtent = d3.extent(plant_data, function(d) { return +d.capacity_mw; })
+
+	    // Add a scale for bubble size
+	    var size = d3.scaleLinear()
+	      .domain(valueExtent)  // What's in the data
+	      .range([2, 30])  // Size in pixel
+
+	    // Add circles:
+	    d3.select("#mapid").select("svg")
+	      .selectAll("myCircles")
+	      .data(plant_data)
+	      .enter()
+	      .append("circle")
+	        .attr("class" , function(d){ return d.primary_fuel })
+	        .attr("cx", function(d){ return map.latLngToLayerPoint([d.latitude, d.longitude]).x })
+            .attr("cy", function(d){ return map.latLngToLayerPoint([d.latitude, d.longitude]).y })
+	        .attr("r", function(d){ return size(d.capacity_mw) })
+	        .style("fill", function(d){ return color(d.primary_fuel) })
+	        .attr("stroke", function(d){ return color(d.primary_fuel) })
+	        .attr("stroke-width", 0)
+	        .attr("fill-opacity", .4)
+
+
+		var myZoom = {
+		  start:  map.getZoom(),
+		  end: map.getZoom()
+		};
+
+	    // This function is gonna change the opacity and size of selected and unselected circles
+	    function update_filter(){
+
+	      // For each check box:
+	      d3.selectAll(".checkbox").each(function(d){
+	        checkbox = d3.select(this);
+	        fuel_type = checkbox.property("value")
+
+	        // If the box is check, I show the group
+	        if(checkbox.property("checked")){
+	          d3.selectAll("circle."+fuel_type).transition().duration(1000).style("opacity", 1)//.attr("r", function(d){ return size(d.capacity_mw) })
+
+	        // Otherwise I hide it
+	        }else{
+	          d3.selectAll("circle."+fuel_type).transition().duration(1000).style("opacity", 0)//.attr("r", 0)
+	        }
+	      })
+	    }
+
+	    map.on('zoomstart', function(e) {
+		   myZoom.start = map.getZoom();
+		});
+
+		map.on('zoomend', function(e) {
+		   
+		});
+
+	    function update_size() {
+	    	myZoom.end = map.getZoom();
+		    var diff = myZoom.start - myZoom.end;
+		    if (diff > 0) {
+		        d3.selectAll("circle").each(function(d){
+		        	circle = d3.select(this)
+		        	circle.attr("r", circle.attr("r")/2)
+		    	});
+		          
+		    } else if (diff < 0) {
+		        d3.selectAll("circle").each(function(d){
+		        	circle = d3.select(this)
+		        	circle.attr("r", circle.attr("r")*2)
+		        });
+		    }
+    		
+		}
+
+		function update_position() {
+			d3.selectAll("circle")
+    		  .attr("cx", function(d){ return map.latLngToLayerPoint([d.latitude, d.longitude]).x })
+    		  .attr("cy", function(d){ return map.latLngToLayerPoint([d.latitude, d.longitude]).y })
+		}
+
+	    // When a button change, I run the update function
+	    d3.selectAll(".checkbox").on("change",update_filter);
+
+	    map.on('movestart', function(e) {
+		   myZoom.start = map.getZoom();
+		});
+
+	    map.on("moveend", update_size).on("moveend", update_position)
+
+	    // And I initialize it at the beginning
+	    update_filter()
+});
+
+</script>
+
