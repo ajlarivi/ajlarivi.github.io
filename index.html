@@ -57,7 +57,7 @@ L.tileLayer(
 // Add a svg layer to the map
 L.svg().addTo(map);
 
-d3.csv("https://raw.githubusercontent.com/ajlarivi/power-plant-csvs/main/global_power_plant_database.csv", function(plant_data){
+d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/data/global_power_plant_database_processed.csv", function(plant_data){
 
 	    var color = d3.scaleOrdinal()
 	      .domain(["Oil", "Hydro", "Wind", "Solar", "Biomass", "Gas", "Geothermal", "Coal", "nuclear", "waste", "other"])
