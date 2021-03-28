@@ -3,8 +3,15 @@
 
 <!-- Load d3.js -->
 <script src="https://d3js.org/d3.v4.js"></script>
+<link rel="stylesheet" type="text/css" href="master.css">
 
-<div class="flex-container" style="display:flex">
+<div class="topnav">
+  <a href="map.html">Map</a>
+  <a class="active" href="scatter.html">Scatter</a>
+  <a href="timeline.html">Timeline</a>
+</div>
+
+<div class="flex-container">
   <div id="yOpts" style="flex:1">
     Select Y axis:<br>
   </div>
@@ -15,7 +22,6 @@
 <!-- Create a div where the graph will take place -->
 <div id="my_dataviz"></div>
 <div id="tooltipDiv"></div>
-
 
 <script>
 var currentlyDisplayed = 'Renewables'
