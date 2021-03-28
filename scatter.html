@@ -4,7 +4,9 @@
 <!-- Load d3.js -->
 <script src="https://d3js.org/d3.v4.js"></script>
 
+<div id="countryOpts"></div>
 <div id="yOpts"></div>
+
 
 <!-- Create a div where the graph will take place -->
 <div id="my_dataviz"></div>
@@ -25,6 +27,13 @@ var svg = d3.select("#my_dataviz")
   .append("g")
     .attr("transform",
           "translate(" + margin.left + "," + margin.top + ")");
+
+// create a clipping region 
+svg.append("defs").append("clipPath")
+    .attr("id", "clip")
+  .append("rect")
+    .attr("width", width)
+    .attr("height", height);
 
 //Read the data
 d3.json("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/data/country_stats3.json", function(data) {
@@ -82,7 +91,7 @@ d3.json("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/da
         return i / data.length * 500;
       })
       .attr("cy", function(d){
-        return y((d[property]/d.Total)*100);
+        return yScale((d[property]/d.Total)*100);
       })
       .on("end", function(){
         d3.select(this)
@@ -102,17 +111,44 @@ d3.json("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/da
 
   }
 
+  function highlightCountry(){
+    var country = this.value;
+    var countries = svg.selectAll("circle")
+      .attr("style", "fill:#69b3a2")
 
+    countries
+      .filter(function(d){
+        return d.Country == country
+      })
+      .attr("style", "fill:red")
+
+  }
+
+  //get data range
   var xExtent = d3.extent(data, function(d) { return +d.Total; })
   var yExtent = d3.extent(data, function(d) { return +(d.Renewables/d.Total)*100; })
-    // Add X axis
-    var x = d3.scaleLinear()
+    //create scale objects
+    var xScale = d3.scaleLinear()
       .domain(xExtent)
       .range([ 0, width ]);
-    svg.append("g")
+
+    var yScale = d3.scaleLinear()
+      .domain([0,100])
+      .range([ height, 0]);
+    //create Axis objects  
+    var xAxis = d3.axisBottom(xScale)
+
+    var yAxis = d3.axisLeft(yScale)
+
+    //draw axis
+    var gX = svg.append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(x));
+      .call(xAxis);
+
+    var gY = svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis);
 
     svg.append("text")             
       .attr("transform",
@@ -120,15 +156,6 @@ d3.json("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/da
                            (height + margin.top + 20) + ")")
       .style("text-anchor", "middle")
       .text("Total Power Capacity (MW)");
-
-    // Add Y axis
-    var y = d3.scaleLinear()
-      .domain([0,100])
-      .range([ height, 0]);
-    svg.append("g")
-      .attr("class", "y axis")
-      .call(d3.axisLeft(y));
-
 
     svg.append("text")
       .attr("transform", "rotate(-90)")
@@ -139,30 +166,76 @@ d3.json("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/da
       .style("text-anchor", "middle")
       .text("Percentage of Total Power Capacity (" + currentlyDisplayed + ")");
 
+  //draw data points
+    var points_g = svg.append("g")
+      //.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+      .attr("clip-path", "url(#clip)")
+      .classed("points_g", true);
 
-    // Add dots
-    svg.append('g')
-      .selectAll("dot")
+    // draw circles
+    var points = points_g
+      .selectAll("circle")
       .data(data)
+
+    points = points
       .enter()
       .append("circle")
-        .attr("cx", function (d) { return x(d.Total); } )
-        .attr("cy", function (d) { return y((d.Renewables/d.Total)*100); } )
+        .attr("cx", function (d) { return xScale(d.Total); } )
+        .attr("cy", function (d) { return yScale((d.Renewables/d.Total)*100); } )
         .attr("r", 3)
         .style("fill", "#69b3a2")
       .on("mouseover", mouseover )
       .on("mousemove", mousemove )
       .on("mouseleave", mouseleave )
 
+      // Pan and zoom
+      var zoom = d3.zoom()
+          .scaleExtent([.5, 20])
+          .extent([[0, 0], [width, height]])
+          .on("zoom", zoomed);
 
-  var listOptions = d3.keys(data[0]).slice(2)
+      svg.append("rect")
+          .attr("width", width)
+          .attr("height", height)
+          .style("fill", "none")
+          .style("pointer-events", "all")
+          //.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+          .call(zoom);
+
+      function zoomed() {
+      // create new scale ojects based on event
+          var new_xScale = d3.event.transform.rescaleX(xScale);
+          var new_yScale = d3.event.transform.rescaleY(yScale);
+      // update axes
+          gX.call(xAxis.scale(new_xScale));
+          gY.call(yAxis.scale(new_yScale));
+          points.data(data)
+           .attr('cx', function(d) {return new_xScale(d.Total)})
+           .attr('cy', function(d) {return new_yScale((d.Renewables/d.Total)*100); });
+      }
+
+
+  var yOptions = d3.keys(data[0]).slice(2)
+  var countryOptions = d3.map(data, function(d){return(d.Country)}).keys()
+
 
   var select = d3.select("#yOpts")
     .append("select")
     .on("change", updateGraph)
 
   var options = select.selectAll(null)
-    .data(listOptions)
+    .data(yOptions)
+    .enter()
+    .append("option")
+    .text(function(d){return d})
+    .attr("value", function(d){return d})
+
+    var select = d3.select("#countryOpts")
+    .append("select")
+    .on("change", highlightCountry)
+
+  var countryDropdown = select.selectAll(null)
+    .data(countryOptions)
     .enter()
     .append("option")
     .text(function(d){return d})
