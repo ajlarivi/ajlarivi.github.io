@@ -4,8 +4,10 @@
 <!-- Load d3.js -->
 <script src="https://d3js.org/d3.v4.js"></script>
 
-<div id="countryOpts"></div>
-<div id="yOpts"></div>
+<div id="countryOpts"style="float:right">Highlight Country: </div>
+<div id="yOpts">
+  Select Y axis:<br>
+</div>
 
 
 <!-- Create a div where the graph will take place -->
@@ -134,6 +136,7 @@ d3.json("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/da
         return d.Country == country
       })
       .attr("style", "fill:red")
+      
 
   }
 
