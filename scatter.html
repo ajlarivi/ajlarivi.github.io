@@ -128,8 +128,14 @@ d3.json("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/da
 
   }
 
-  function highlightCountry(){
-    var country = this.value;
+  function highlightCountry(dotCountry){
+    if(dotCountry){
+      var country = dotCountry
+    }
+    else{
+      var country = this.value;
+    }
+    
     var countries = svg.selectAll("circle")
       .attr("style", "fill:#69b3a2")
 
@@ -219,6 +225,19 @@ d3.json("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/da
       .on("mouseover", mouseover )
       .on("mousemove", mousemove )
       .on("mouseleave", mouseleave )
+      .on("click", function(d){
+        dot = d3.select(this)
+        dotCountry = dot.datum().Country
+        highlightCountry(dotCountry)
+        var sel = document.getElementById('sel')
+        var opts = sel.options
+        for(var opt, j = 0; opt = opts[j]; j++){
+          if(opt.value == dotCountry){
+            sel.selectedIndex = j;
+            break;
+          }
+        }
+      })
 
       // Pan and zoom
       
@@ -255,6 +274,7 @@ d3.json("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/da
 
     var select = d3.select("#countryOpts")
     .append("select")
+    .attr("id", "sel")
     .on("change", highlightCountry)
 
   var countryDropdown = select.selectAll(null)
