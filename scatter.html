@@ -4,11 +4,14 @@
 <!-- Load d3.js -->
 <script src="https://d3js.org/d3.v4.js"></script>
 
+<div id="yOpts"></div>
+
 <!-- Create a div where the graph will take place -->
 <div id="my_dataviz"></div>
 
 
 <script>
+var currentlyDisplayed = 'Coal'
 // set the dimensions and margins of the graph
 var margin = {top: 10, right: 30, bottom: 30, left: 60},
     width = 1000 - margin.left - margin.right,
@@ -24,27 +27,7 @@ var svg = d3.select("#my_dataviz")
           "translate(" + margin.left + "," + margin.top + ")");
 
 //Read the data
-d3.json("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/data/country_stats_flat_top.json", function(data) {
-  var xExtent = d3.extent(data, function(d) { return +d.total; })
-  var yExtent = d3.extent(data, function(d) { return +d.Coal; })
-  console.log(xExtent)
-  console.log(yExtent)
-  // Add X axis
-  console.log(data[1])
-  console.log(data[1].total)
-  var x = d3.scaleLinear()
-    .domain(xExtent)
-    .range([ 0, width ]);
-  svg.append("g")
-    .attr("transform", "translate(0," + height + ")")
-    .call(d3.axisBottom(x));
-
-  // Add Y axis
-  var y = d3.scaleLinear()
-    .domain(yExtent)
-    .range([ height, 0]);
-  svg.append("g")
-    .call(d3.axisLeft(y));
+d3.json("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/data/country_stats3.json", function(data) {
 
     // Add a tooltip div. Here I define the general feature of the tooltip: stuff that do not depend on the data point.
   // Its opacity is set to 0: we don't see it by default.
@@ -65,7 +48,7 @@ d3.json("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/da
 
   var mousemove = function(d) {
     tooltip
-      .html(d.country)
+      .html(d.Country + "<br>total capacity (mw): " + d.Total + "<br>" + currentlyDisplayed + " capacity (mw): " + d[currentlyDisplayed])
       .style("left", (d3.mouse(this)[0]+90) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
       .style("top", (d3.mouse(this)[1]) + "px")
   }
@@ -78,19 +61,107 @@ d3.json("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/da
       .style("opacity", 0)
   }
 
-  // Add dots
-  svg.append('g')
-    .selectAll("dot")
-    .data(data)
+  function updateGraph(){
+	  //---------------------------------------------
+    var property = this.value;
+    currentlyDisplayed = property
+
+    var xExtent = d3.extent(data, function(d) { return +d.Total; })
+	  var yExtent = d3.extent(data, function(d) { return +(d[property]/d.Total)*100; })
+	  // Add Y axis
+    x.domain(xExtent)
+	  y.domain([0,100])
+	  // Add dots
+	  svg.selectAll("circle")
+      .data(data)
+      .transition()
+      .duration(1000)
+      .on("start", function(){
+        d3.select(this)
+          .attr("fill", "red")
+          .attr("r", 5);
+      })
+      .delay(function(d,i){
+        return i / data.length * 500;
+      })
+      .attr("cx", function(d){
+        return x(d.Total);
+      })
+      .attr("cy", function(d){
+        return y((d[property]/d.Total)*100);
+      })
+      .on("end", function(){
+        d3.select(this)
+          .attr("fill", "#69b3a2")
+          .attr("r", 3)
+      });
+
+      svg.select(".x.axis")
+        .transition()
+        .duration(100)
+        .call(d3.axisBottom(x))
+
+      svg.select(".y.axis")
+        .transition()
+        .duration(100)
+        .call(d3.axisLeft(y))
+
+  }
+
+
+  var xExtent = d3.extent(data, function(d) { return +d.Total; })
+  var yExtent = d3.extent(data, function(d) { return +(d.Coal/d.Total)*100; })
+    // Add X axis
+    var x = d3.scaleLinear()
+      .domain(xExtent)
+      .range([ 0, width ]);
+    svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+
+    // Add Y axis
+    var y = d3.scaleLinear()
+      .domain([0,100])
+      .range([ height, 0]);
+    svg.append("g")
+      .attr("class", "y axis")
+      .call(d3.axisLeft(y));
+
+    // Add dots
+    svg.append('g')
+      .selectAll("dot")
+      .data(data)
+      .enter()
+      .append("circle")
+        .attr("cx", function (d) { return x(d.Total); } )
+        .attr("cy", function (d) { return y((d.Coal/d.Total)*100); } )
+        .attr("r", 3)
+        .style("fill", "#69b3a2")
+      .on("mouseover", mouseover )
+      .on("mousemove", mousemove )
+      .on("mouseleave", mouseleave )
+
+
+  var listOptions = d3.keys(data[0]).slice(1)
+
+  var select = d3.select("#yOpts")
+    .append("select")
+    .on("change", updateGraph)
+
+  select.append("option")
+    .html("Coal")
+
+  var options = select.selectAll(null)
+    .data(listOptions)
     .enter()
-    .append("circle")
-      .attr("cx", function (d) { return x(d.total); } )
-      .attr("cy", function (d) { return y(d.Coal); } )
-      .attr("r", 3)
-      .style("fill", "#69b3a2")
-    .on("mouseover", mouseover )
-    .on("mousemove", mousemove )
-    .on("mouseleave", mouseleave )
+    .append("option")
+    .text(function(d){return d})
+    .attr("value", function(d){return d})
+
+
+  
+  
 })
 
 </script>
