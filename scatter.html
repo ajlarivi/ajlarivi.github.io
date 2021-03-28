@@ -10,6 +10,7 @@
 
 <!-- Create a div where the graph will take place -->
 <div id="my_dataviz"></div>
+<div id="tooltipDiv"></div>
 
 
 <script>
@@ -32,15 +33,16 @@ var svg = d3.select("#my_dataviz")
 svg.append("defs").append("clipPath")
     .attr("id", "clip")
   .append("rect")
-    .attr("width", width)
-    .attr("height", height);
+    .attr("width", width+8)
+    .attr("height", height+8)
+    .attr('transform', 'translate(-3,-3)');
 
 //Read the data
 d3.json("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/data/country_stats3.json", function(data) {
 
     // Add a tooltip div. Here I define the general feature of the tooltip: stuff that do not depend on the data point.
   // Its opacity is set to 0: we don't see it by default.
-  var tooltip = d3.select("#my_dataviz")
+  var tooltip = d3.select("#tooltipDiv")
     .append("div")
     .style("opacity", 0)
     .attr("class", "tooltip")
@@ -76,29 +78,40 @@ d3.json("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/da
     currentlyDisplayed = property
 
 	  var yExtent = d3.extent(data, function(d) { return +(d[property]/d.Total)*100; })
-
 	  // Add dots
-	  svg.selectAll("circle")
-      .data(data)
+
+    var currentYScale = yAxis.scale()
+
+	  points
+      //.data(data)
       .transition()
       .duration(1000)
       .on("start", function(){
         d3.select(this)
           .style("opacity", 0.6)
-          .attr("r", 4);
+          .attr("r", 5);
       })
       .delay(function(d,i){
         return i / data.length * 500;
       })
       .attr("cy", function(d){
-        return yScale((d[property]/d.Total)*100);
+        return currentYScale((d[property]/d.Total)*100);
       })
       .on("end", function(){
         d3.select(this)
           .style("opacity", 1)
-          .attr("r", 3)
+          .attr("r", 4)
       });
 
+
+
+      /*points = points
+        .data(data)
+        .attr("cy", function(d){
+          return yScale((d[property]/d.Total)*100);
+        })*/
+
+      
       /*svg.select(".x.axis")
         .transition()
         .duration(100)
@@ -166,6 +179,20 @@ d3.json("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/da
       .style("text-anchor", "middle")
       .text("Percentage of Total Power Capacity (" + currentlyDisplayed + ")");
 
+    var zoom = d3.zoom()
+          .extent([[0, 0], [width, height]])
+          .scaleExtent([1, 10])
+          .translateExtent([[0,0], [width,height]])
+          .on("zoom", zoomed);
+
+    svg.append("rect")
+          .attr("width", width)
+          .attr("height", height)
+          .style("fill", "none")
+          .style("pointer-events", "all")
+          //.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+          .call(zoom);
+
   //draw data points
     var points_g = svg.append("g")
       //.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
@@ -182,25 +209,16 @@ d3.json("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/da
       .append("circle")
         .attr("cx", function (d) { return xScale(d.Total); } )
         .attr("cy", function (d) { return yScale((d.Renewables/d.Total)*100); } )
-        .attr("r", 3)
+        .attr("r", 4)
         .style("fill", "#69b3a2")
       .on("mouseover", mouseover )
       .on("mousemove", mousemove )
       .on("mouseleave", mouseleave )
 
       // Pan and zoom
-      var zoom = d3.zoom()
-          .scaleExtent([.5, 20])
-          .extent([[0, 0], [width, height]])
-          .on("zoom", zoomed);
+      
 
-      svg.append("rect")
-          .attr("width", width)
-          .attr("height", height)
-          .style("fill", "none")
-          .style("pointer-events", "all")
-          //.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
-          .call(zoom);
+      
 
       function zoomed() {
       // create new scale ojects based on event
@@ -211,7 +229,7 @@ d3.json("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/da
           gY.call(yAxis.scale(new_yScale));
           points.data(data)
            .attr('cx', function(d) {return new_xScale(d.Total)})
-           .attr('cy', function(d) {return new_yScale((d.Renewables/d.Total)*100); });
+           .attr('cy', function(d) {return new_yScale((d[currentlyDisplayed]/d.Total)*100); });
       }
 
 
@@ -245,5 +263,7 @@ d3.json("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/da
   
   
 })
+
+
 
 </script>
