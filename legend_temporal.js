@@ -1,6 +1,6 @@
 oil = ['#3E2723', '#EFEBE9']      
 
-hydro = ['#0D47A1', '#EAF2F8']
+hydro = ['#0D47A1', '#E3F2FD']
 
 wind = ['#004D40', '#E0F2F1']
 
@@ -20,7 +20,7 @@ waste = ['#4A148C', '#F3E5F5']
 
 other = ['#827717', '#F9FBE7']
 
-var fuels = [ "Biomass", "Geothermal", "Hydro", "Solar", "Wind", "other", "Coal", "Gas", "nuclear", "Oil", "waste"]
+var fuels = [ "Biomass", "Geothermal", "Hydro", "Solar", "Wind", "Other", "Coal", "Gas", "Nuclear", "Oil", "Waste"]
 
 var colorScale = d3.scaleOrdinal()
         .domain(fuels)

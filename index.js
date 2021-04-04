@@ -13,7 +13,7 @@ var currentlyDisplayed = 'Renewables'
 // set the dimensions and margins of the graph
 var margin = {top: 10, right: 30, bottom: 35, left: 60},
     width = 1000 - margin.left - margin.right,
-    height = 600 - margin.top - margin.bottom;
+    height = 575 - margin.top - margin.bottom;
 
 // append the svg object to the body of the page
 var svgScatter = d3.select("#my_dataviz")

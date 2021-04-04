@@ -16,26 +16,22 @@
   <a class="active" href="index.html">Full Dataset</a>
   <a href="map_temporal.html">Temporal Dataset</a>
 </div>
-
+<div id="countryOpts" style="margin:auto; width:20%; padding: 5px 5px">Show Country: </div>
 <div class="flex-container">
-	<div id="mapContainer" style="flex:1">
-		<div id="countryOpts" style="padding: 5px 5px">Show Country: </div>
+	<div  id="legendContainer" style="flex:1; width:220px">
+		<!--<p style="float:left">first plant</p>
+		<p style="float:right">last plant</p>-->
+		<div id="legendBars"></div>
+		<div id="buttonsContainer" style="margin:auto; width:80%">
+			<button id="setButton">check all</button>
+			<button id="resetButton">uncheck all</button>
+		</div>
+	</div>
+	<div id="mapContainer" style="flex:3">
+		
 
 		<!-- Button -->
 		<div>
-		  <input type="checkbox" class="checkbox" value="Biomass" checked><label class="myLabel" value="Biomass">Biomass</label>
-		  <input type="checkbox" class="checkbox" value="Geothermal" checked><label class="myLabel" value="Geothermal">Geothermal</label>
-		  <input type="checkbox" class="checkbox" value="Hydro" checked><label class="myLabel" value="Hydro">Hydro</label>
-		  <input type="checkbox" class="checkbox" value="Solar" checked><label class="myLabel" value="Solar">Solar</label>
-		  <input type="checkbox" class="checkbox" value="Wind" checked><label class="myLabel" value="Wind">Wind</label>
-		  <input type="checkbox" class="checkbox" value="Coal" checked><label class="myLabel" value="Coal">Coal</label>
-		  <input type="checkbox" class="checkbox" value="Gas" checked><label class="myLabel" value="Gas">Gas</label>
-		  <input type="checkbox" class="checkbox" value="Nuclear" checked><label class="myLabel" value="Nuclear">Nuclear</label>
-		  <input type="checkbox" class="checkbox" value="Oil" checked><label class="myLabel" value="Oil">Oil</label>
-		  <input type="checkbox" class="checkbox" value="Waste" checked><label class="myLabel" value="Waste">Waste</label>
-		  <input type="checkbox" class="checkbox" value="Other" checked><label class="myLabel" value="Other">Other</label>
-		  <button id="setButton">check all</button>
-		  <button id="resetButton">uncheck all</button>
 		</div>
 
 		<!-- Create an element where the map will take place -->
@@ -43,7 +39,7 @@
 		<div id="mapTooltipDiv"></div>
 	</div>
 
-	<div id="scatterContainer" style="flex:1">
+	<div id="scatterContainer" style="flex:2">
 		<div class="flex-container">
 		  <div id="yOpts" style="flex:1">
 		    Select Y axis:<br>
@@ -66,6 +62,6 @@
 }
 </style>
 
-
+<script src='legend_index.js'></script>
 <script src=index.js></script>
 

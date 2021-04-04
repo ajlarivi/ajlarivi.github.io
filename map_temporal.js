@@ -14,7 +14,7 @@ L.tileLayer(
 
 // set the dimensions and margins of the graph
 var margin = {top: 30, right: 50, bottom: 50, left: 70},
-    width = 1000 - margin.left - margin.right,
+    width = 900 - margin.left - margin.right,
     height = 600 - margin.top - margin.bottom;
 
 // append the svg object to the body of the page
@@ -470,7 +470,9 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 	    svgTimeline.append("g")
 	      .attr("transform", "translate(0," + height + ")")
 	      .call(d3.axisBottom(x)
-	      .ticks(25));
+	      .ticks(25)
+	      .tickFormat(d3.format("d")));
+
 
 	    // Add Y axis
 	    var y = d3.scalePoint()
@@ -482,13 +484,13 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 	    svgTimeline.append("text")             
 		      .attr("transform",
 		            "translate(" + (width/2) + " ," + 
-		                           (height + margin.top + 20) + ")")
+		                           (height + margin.top + 5) + ")")
 		      .style("text-anchor", "middle")
-		      .text("commissioning year");
+		      .text("Power Plant Commissioning Year");
 
 	    svgTimeline.append("text")
 	      .attr("transform", "rotate(-90)")
-	      .attr("y", 0 - margin.left)
+	      .attr("y", 0 - margin.left + 5)
 	      .attr("x",0 - (height / 2))
 	      .attr("dy", "1em")
 	      .attr("id", "yLabel")
