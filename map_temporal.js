@@ -27,7 +27,7 @@ var svgTimeline = d3.select("#my_dataviz")
           "translate(" + margin.left + "," + margin.top + ")");
 
 
-d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/data/global_power_plant_database_wihtExtent.xls", function(plant_data){
+d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/data/global_power_plant_database_wihtExtent.csv", function(plant_data){
 	d3.json("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/data/countries.geojson", function(geoJsonData){
 		jsonLayer = L.geoJSON(geoJsonData, {
 			style: function (feature){
