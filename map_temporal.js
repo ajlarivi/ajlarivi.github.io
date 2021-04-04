@@ -479,6 +479,22 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 	    svgTimeline.append("g")
 	      .call(d3.axisLeft(y));
 
+	    svgTimeline.append("text")             
+		      .attr("transform",
+		            "translate(" + (width/2) + " ," + 
+		                           (height + margin.top + 20) + ")")
+		      .style("text-anchor", "middle")
+		      .text("commissioning year");
+
+	    svgTimeline.append("text")
+	      .attr("transform", "rotate(-90)")
+	      .attr("y", 0 - margin.left)
+	      .attr("x",0 - (height / 2))
+	      .attr("dy", "1em")
+	      .attr("id", "yLabel")
+	      .style("text-anchor", "middle")
+	      .text("Power Plant Primary Fuel Source");
+
 
 	    var dot = svgTimeline
 	      .selectAll('circle')
