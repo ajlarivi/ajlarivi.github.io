@@ -2,7 +2,7 @@
 
 var map = L
   .map('mapid')
-  .setView([47, 2], 5);   // center position + zoom
+  .setView([41, 20], 7);   // center position + zoom
 
 // Add a tile to the map = a background. Comes from OpenStreetmap
 L.tileLayer(
@@ -11,24 +11,56 @@ L.tileLayer(
     maxZoom: 8,
     }).addTo(map);
 
-// Add a svg layer to the map
-L.svg().addTo(map);
 
-d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/data/global_power_plant_database_WithAge_sorted.csv", function(plant_data){
+// set the dimensions and margins of the graph
+var margin = {top: 80, right: 100, bottom: 35, left: 70},
+    width = 1000 - margin.left - margin.right,
+    height = 600 - margin.top - margin.bottom;
+
+// append the svg object to the body of the page
+var svgTimeline = d3.select("#my_dataviz")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+
+d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/data/global_power_plant_database_wihtExtent.xls", function(plant_data){
 	d3.json("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/data/countries.geojson", function(geoJsonData){
-		L.geoJSON(geoJsonData, {
+		jsonLayer = L.geoJSON(geoJsonData, {
 			style: function (feature){
 				return {fillOpacity: 0,
-						opacity: 0}
+						opacity: 0,
+						color: '#cc2537'}
 			},
 		    onEachFeature: onEachFeature
 		}).addTo(map);
+
+		L.svg().addTo(map);
+		
 
 	  function clickFeature(e) {
     		var layer = e.target;
     		country = layer.feature.properties.ADMIN
     		console.log(country)
+
+    		jsonLayer.eachLayer(function(d){
+    			d.setStyle({
+    				opacity: 0,
+    			})
+    		})
+
+    		layer.setStyle({
+    			opacity: 1
+    		})
+
+    		update(country)
+
+
     		map.fitBounds(layer.getBounds());
+    		console.log(map.getCenter())
     		var sel = document.getElementById('sel')
         	var opts = sel.options
 	        for(var opt, j = 0; opt = opts[j]; j++){
@@ -55,76 +87,109 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 
 
 	    var valueExtent = d3.extent(plant_data, function(d) { return +d.capacity_mw; })
-	    var yearExtent = d3.extent(plant_data, function(d) { return +d.plant_rank; })
-	    console.log(yearExtent)
+	    /*var rank_extent = d3.extent(plant_data, function(d) { return +d.plant_rank; })
 
 	    var oilRange = d3.scaleLinear()
-	    	.domain(yearExtent)
+	    	.domain(rank_extent)
 	    	.range(['#6E2C00', '#FBEEE6'])
 	    var hydroRange = d3.scaleLinear()
-	    	.domain(yearExtent)
+	    	.domain([rank_extent])
 	    	.range(['#154360', '#EAF2F8'])
 	    var windRange = d3.scaleLinear()
-	    	.domain(yearExtent)
+	    	.domain(rank_extent)
 	    	.range(['#1B4F72', '#EBF5FB'])
 	    var solarRange = d3.scaleLinear()
-	    	.domain(yearExtent)
+	    	.domain(rank_extent)
 	    	.range(['##7E5109', '#7E5109'])
 	    var biomassRange = d3.scaleLinear()
-	    	.domain(yearExtent)
+	    	.domain(rank_extent)
 	    	.range(['#145A32', '#145A32'])
 	    var gasRange = d3.scaleLinear()
-	    	.domain(yearExtent)
+	    	.domain(rank_extent)
 	    	.range(['#512E5F', '#FDEDEC'])
 	    var geothermalRange = d3.scaleLinear()
-	    	.domain(yearExtent)
+	    	.domain(rank_extent)
 	    	.range(['#7D6608 ', '#FEF9E7'])
 	    var coalRange = d3.scaleLinear()
-	    	.domain(yearExtent)
+	    	.domain(rank_extent)
 	    	.range(['#17202A ', '#EAECEE'])
 	    var nuclearRange = d3.scaleLinear()
-	    	.domain(yearExtent)
+	    	.domain(rank_extent)
 	    	.range(['#7B241C', '#F9EBEA'])
 	    var wasteRange = d3.scaleLinear()
-	    	.domain(yearExtent)
+	    	.domain(rank_extent)
 	    	.range(['#4A235A', '#F4ECF7'])
 	    var otherRange = d3.scaleLinear()
-	    	.domain(yearExtent)
-	    	.range(['#0B5345', '#E8F6F3'])
+	    	.domain(rank_extent)
+	    	.range(['#0B5345', '#E8F6F3'])*/
 
 
-	    function getColorValue(year, primary_fuel){
+	    function getColorValue(rank, rank_max, primary_fuel){
+
 	    	if(primary_fuel == "Oil"){
-	    		return oilRange(year)
+	    		var oilRange = d3.scaleLinear()
+		    	.domain([1,rank_max])
+		    	.range(['#6E2C00', '#FBEEE6'])
+	    		return oilRange(rank)
 	    	} else if(primary_fuel == "Hydro"){
-	    		return hydroRange(year)
+	    		var hydroRange = d3.scaleLinear()
+		    	.domain([1,rank_max])
+		    	.range(['#154360', '#EAF2F8'])
+	    		return hydroRange(rank)
 	    	} else if(primary_fuel == "Wind"){
-	    		return windRange(year)
+	    		var windRange = d3.scaleLinear()
+		    	.domain([1,rank_max])
+		    	.range(['#1B4F72', '#EBF5FB'])
+	    		return windRange(rank)
 	    	} else if(primary_fuel == "Solar"){
-	    		return solarRange(year)
+	    		var solarRange = d3.scaleLinear()
+		    	.domain([1,rank_max])
+		    	.range(['#7E5109', '#FEF5E7'])
+	    		return solarRange(rank)
 	    	} else if(primary_fuel == "Biomass"){
-	    		return biomassRange(year)
+	    		var biomassRange = d3.scaleLinear()
+		    	.domain([1,rank_max])
+		    	.range(['#145A32', '#145A32'])
+	    		return biomassRange(rank)
 	    	} else if(primary_fuel == "Gas"){
-	    		return gasRange(year)
+	    		var gasRange = d3.scaleLinear()
+		    	.domain([1,rank_max])
+		    	.range(['#512E5F', '#FDEDEC'])
+	    		return gasRange(rank)
 	    	} else if(primary_fuel == "Geothermal"){
-	    		return geothermalRange(year)
+	    		var geothermalRange = d3.scaleLinear()
+		    	.domain([1,rank_max])
+		    	.range(['#7D6608 ', '#FEF9E7'])
+	    		return geothermalRange(rank)
 	    	} else if(primary_fuel == "Coal"){
-	    		return coalRange(year)
+	    		var coalRange = d3.scaleLinear()
+		    	.domain([1,rank_max])
+		    	.range(['#17202A ', '#EAECEE'])
+	    		return coalRange(rank)
 	    	} else if(primary_fuel == "Nuclear"){
-	    		return nuclearRange(year)
+	    		var nuclearRange = d3.scaleLinear()
+		    	.domain([1,rank_max])
+		    	.range(['#641E16', '#F9EBEA'])
+	    		return nuclearRange(rank)
 	    	} else if(primary_fuel == "Waste"){
-	    		return wasteRange(year)
+	    		var wasteRange = d3.scaleLinear()
+		    	.domain([1,rank_max])
+		    	.range(['#4A235A', '#F4ECF7'])
+	    		return wasteRange(rank)
 	    	} else {
-	    		return otherRange(year)
+	    		var otherRange = d3.scaleLinear()
+		    	.domain([1,rank_max])
+		    	.range(['#0B5345', '#E8F6F3'])
+	    		return otherRange(rank)
 	    	}
 	    } 
 
-	    function getStrokeColor(rank, year, primary_fuel){
+	    function getStrokeColor(rank, rank_extent, primary_fuel){
 	    	if(rank == 1){
 	    		return '#FF06BF'
 	    	}
 	    	else{
-	    		return getColorValue(year, primary_fuel)
+	    		return getColorValue(rank, rank_extent, primary_fuel)
 	    	}
 	    }
 
@@ -133,6 +198,7 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 	    	map._layers[country].fire('click');  // 'clicks' on state name from search
         	//var layer = map._layers[a];
         	//map.fitBounds(layer.getBounds());  // zooms to selected poly
+        	update(country)
 
 
 	    }
@@ -162,12 +228,12 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 	      .domain(valueExtent)  // What's in the data
 	      .range([2, 30])  // Size in pixel
 
-	    var opacity = d3.scaleLinear()
-	       .domain(yearExtent)
-	       .range([0.1,1])
+	    /*var opacity = d3.scaleLinear()
+	       .domain(rank_extent)
+	       .range([0.1,1])*/
 
 
-	    var Tooltip = d3.select("body")
+	    var Tooltip = d3.select("#tooltipDiv")
       	  .append("div")
       	  .attr("class", "tooltip")
       	  .style("opacity", 0)
@@ -180,20 +246,88 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 
 
       	// Three function that change the tooltip when user hover / move / leave a cell
-    	var mouseover = function(d) {
-    		if(myZoom.end > 6){
-      			Tooltip.style("opacity", 1)
-      		}
+    	var mouseoverMap = function(d) {
+      		Tooltip.style("opacity", 1)
+      		
+      		var point = d3.select(this)
+
+      		point.style("fill", "#cc2537")
+      		point.style("stroke", "#cc2537")
+
+      		var idnr = point.datum().gppd_idnr
+
+      		svgTimeline.selectAll("circle").
+      		filter(function(d){
+      			return d.gppd_idnr == idnr;
+      		})
+      		.style("fill", "#cc2537")
+      		.style("stroke", "#cc2537")
     	}
-    	var mousemove = function(d) {
+    	var mousemoveMap = function(d) {
       		Tooltip
         	  .html(d.name + "<br>" + "capacity (MW): " + d.capacity_mw + "<br>" + "primary fuel: " + d.primary_fuel + "<br>commissioning year: " + d.commissioning_year)
         	  .style("left", (d3.mouse(this)[0]+10) + "px")
         	  .style("top", (d3.mouse(this)[1]) + "px")
     	}
-    	var mouseleave = function(d) {
+    	var mouseleaveMap = function(d) {
       		Tooltip.style("opacity", 0)
+      		
+      		var point = d3.select(this)
+      		point.style("fill", function(d){ return getColorValue(d.plant_rank, d.rank_extent, d.primary_fuel)})
+      		point.style("stroke", function(d){ return getStrokeColor(d.plant_rank, d.rank_extent, d.primary_fuel)})
+
+      		var idnr = point.datum().gppd_idnr
+
+      		svgTimeline.selectAll("circle").
+      		filter(function(d){
+      			return d.gppd_idnr == idnr;
+      		})
+      		.style("fill", function(d){ return getColorValue(d.plant_rank, d.rank_extent, d.primary_fuel)})
+      		.style("stroke", function(d) { return getStrokeColor(d.plant_rank, d.rank_extent, d.primary_fuel)})
+
     	}
+
+    	var mouseoverTimeline = function(d) {
+    		if(myZoom.end > 6){
+      			Tooltip.style("opacity", 1)
+      		}
+      		var point = d3.select(this)
+
+      		point.style("fill", "#cc2537")
+      		point.style("stroke", "#cc2537")
+
+      		var idnr = point.datum().gppd_idnr
+
+      		d3.select("#mapid").select("svg").selectAll("circle").
+      		filter(function(d){
+      			return d.gppd_idnr == idnr;
+      		})
+      		.style("fill", "#cc2537")
+      		.style("stroke", "#cc2537")
+    	}
+    	var mousemoveTimeline = function(d) {
+      		Tooltip
+        	  .html(d.name + "<br>" + "capacity (MW): " + d.capacity_mw + "<br>" + "primary fuel: " + d.primary_fuel + "<br>commissioning year: " + d.commissioning_year)
+        	  .style("left", (d3.mouse(this)[0]+10) + "px")
+        	  .style("top", (d3.mouse(this)[1]) + "px")
+    	}
+    	var mouseleaveTimeline = function(d) {
+      		Tooltip.style("opacity", 0)
+      		
+      		var point = d3.select(this)
+      		point.style("fill", function(d){ return getColorValue(d.plant_rank, d.rank_extent, d.primary_fuel)})
+      		point.style("stroke", function(d){ return getStrokeColor(d.plant_rank, d.rank_extent, d.primary_fuel)})
+
+      		var idnr = point.datum().gppd_idnr
+
+      		d3.select("#mapid").select("svg").selectAll("circle").
+      		filter(function(d){
+      			return d.gppd_idnr == idnr;
+      		})
+      		.style("fill", function(d){ return getColorValue(d.plant_rank, d.rank_extent, d.primary_fuel)})
+      		.style("stroke", function(d) { return getStrokeColor(d.plant_rank, d.rank_extent, d.primary_fuel)})
+    	}
+
 
 	    // Add circles:
 	    d3.select("#mapid").select("svg")
@@ -205,14 +339,14 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 	        .attr("cx", function(d){ return map.latLngToLayerPoint([d.latitude, d.longitude]).x })
             .attr("cy", function(d){ return map.latLngToLayerPoint([d.latitude, d.longitude]).y })
 	        .attr("r", function(d){ return size(d.capacity_mw) })
-	        .style("fill", function(d){ return getColorValue(d.plant_rank, d.primary_fuel)})
-	        .attr("stroke", function(d){ return getStrokeColor(d.plant_rank, d.plant_rank, d.primary_fuel)})
+	        .style("fill", function(d){ return getColorValue(d.plant_rank, d.rank_extent, d.primary_fuel)})
+	        .attr("stroke", function(d){ return getStrokeColor(d.plant_rank, d.rank_extent, d.primary_fuel)})
 	        .attr("stroke-width", 1)
 	        .attr("fill-opacity", 1)
 	        .style("pointer-events", "auto")
-	       .on("mouseover", mouseover)
-      	   .on("mousemove", mousemove)
-      	   .on("mouseleave", mouseleave)
+	       .on("mouseover", mouseoverMap)
+      	   .on("mousemove", mousemoveMap)
+      	   .on("mouseleave", mouseleaveMap)
 
 
 		var myZoom = {
@@ -229,7 +363,7 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 	        checkbox = d3.select(this);
 	        fuel_type = checkbox.property("value")
 
-	        checkbox.attr("style", "color:" + color(fuel_type + ";"))
+	        checkbox.style("color",  color(fuel_type + ";"))
 
 	        // If the box is check, I show the group
 	        if(checkbox.property("checked")){
@@ -246,20 +380,18 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 	    function update_size() {
 	    	myZoom.end = map.getZoom();
 		    var diff = myZoom.start - myZoom.end;
-		    console.log("size updated " + diff)
 		    if(diff > 4){
 		    	diff = 4
-		    	console.log("adjusted")
 		    }
 
 		    if (diff > 0) {
-		        d3.selectAll("circle").each(function(d){
+		        d3.select("#mapid").select("svg").selectAll("circle").each(function(d){
 		        	circle = d3.select(this)
 		        	circle.attr("r", circle.attr("r")/(2*diff))
 		    	});
 		          
 		    } else if (diff < 0) {
-		        d3.selectAll("circle").each(function(d){
+		        d3.select("#mapid").select("svg").selectAll("circle").each(function(d){
 		        	circle = d3.select(this)
 		        	circle.attr("r", circle.attr("r")*(2*Math.abs(diff)))
 		        });
@@ -268,7 +400,7 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 		}
 
 		function update_position() {
-			d3.selectAll("circle")
+			d3.select("#mapid").select("svg").selectAll("circle")
     		  .attr("cx", function(d){ return map.latLngToLayerPoint([d.latitude, d.longitude]).x })
     		  .attr("cy", function(d){ return map.latLngToLayerPoint([d.latitude, d.longitude]).y })
     		  
@@ -276,6 +408,15 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 
 	    // When a button change, I run the update function
 	    d3.selectAll(".checkbox").on("change",update_filter);
+
+	    d3.select("#resetButton").on("click", function(d){
+			d3.selectAll(".checkbox").each(function(d){
+				checkbox = d3.select(this);
+				checkbox.property("checked", false)
+			})
+
+			d3.select("#mapid").select("svg").selectAll("circle").transition().duration(1000).style("opacity", 0)
+		});
 
 	    map.on('movestart', function(e) {
 		  // myZoom.start = map.getZoom();
@@ -286,5 +427,69 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 	    // And I initialize it at the beginning
 	    update_filter()
 
+
+	    var data = plant_data
+
+
+
+
+	    var dataFilter = data.filter(function(d){return d.country_long == 'Albania' })
+
+	    var xMin = d3.min(data, function(d) { return +d.commissioning_year; })
+		var xMax = d3.max(data, function(d) { return +d.commissioning_year; })
+
+		var x = d3.scaleLinear()
+	      .domain([xMin,xMax])
+	      .range([ 0, width ]);
+	    svgTimeline.append("g")
+	      .attr("transform", "translate(0," + height + ")")
+	      .call(d3.axisBottom(x)
+	      .ticks(25));
+
+	    // Add Y axis
+	    var y = d3.scalePoint()
+	      .domain(["Biomass", "Geothermal", "Hydro", "Solar", "Wind", "Other", "Coal", "Gas", "Nuclear", "Oil", "Waste"].reverse())
+	      .range([ height - 10, 0]);
+	    svgTimeline.append("g")
+	      .call(d3.axisLeft(y));
+
+
+	    var dot = svgTimeline
+	      .selectAll('circle')
+	      .data(dataFilter)
+	      .enter()
+	      .append('circle')
+	        .attr("cx", function(d) { return x(+d.commissioning_year) })
+	        .attr("cy", function(d) { return y(d.primary_fuel) })
+	        .attr("r", function(d) { return size(d.capacity_mw) })
+	        .style("fill", function(d){ return getColorValue(d.plant_rank, d.rank_extent, d.primary_fuel)})
+	        .attr("stroke", function(d){ return getStrokeColor(d.plant_rank, d.rank_extent, d.primary_fuel)})
+	        .on("mouseover", mouseoverTimeline)
+      	    .on("mousemove", mousemoveTimeline)
+      	    .on("mouseleave", mouseleaveTimeline)
+
+      	map._layers["Albania"].fire('click');
+
+	    function update(country) {
+
+	      // Create new data with the selection?
+	      var dataFilter = data.filter(function(d){return d.country_long == country })
+
+	      svgTimeline.selectAll('circle').remove()
+	      // Give these new data to update line
+	      dot = svgTimeline
+	      	.selectAll('circle')
+	        .data(dataFilter)
+	        .enter()
+	        .append('circle')
+	          .attr("cx", function(d) { return x(+d.commissioning_year) })
+	          .attr("cy", function(d) { return y(d.primary_fuel) })
+	          .attr("r", function(d) { return size(d.capacity_mw) })
+	          .style("fill", function(d){ return getColorValue(d.plant_rank, d.rank_extent, d.primary_fuel)})
+	          .attr("stroke", function(d){ return getStrokeColor(d.plant_rank, d.rank_extent, d.primary_fuel)})
+	          .on("mouseover", mouseoverTimeline)
+      	      .on("mousemove", mousemoveTimeline)
+      	      .on("mouseleave", mouseleaveTimeline)
+	    }
 	});
 });

@@ -13,9 +13,8 @@
 <link rel="stylesheet" type="text/css" href="master.css">
 
 <div class="topnav">
-  <a class="active" href="index.html">Map</a>
-  <a href="scatter.html">Scatter</a>
-  <a href="timeline.html">Timeline</a>
+  <a class="active" href="index.html">Full Dataset</a>
+  <a href="map_temporal.html">Temporal Dataset</a>
 </div>
 
 <div class="flex-container">
@@ -24,18 +23,19 @@
 
 		<!-- Button -->
 		<div>
-		  <input type="checkbox" class="checkbox" value="Oil" checked><label>Oil</label>
-		  <input type="checkbox" class="checkbox" value="Hydro" checked><label>Hydro</label>
-		  <input type="checkbox" class="checkbox" value="Wind" checked><label>Wind</label>
-		  <input type="checkbox" class="checkbox" value="Solar" checked><label>Solar</label>
-		  <input type="checkbox" class="checkbox" value="Biomass" checked><label>Biomass</label>
-		  <input type="checkbox" class="checkbox" value="Gas" checked><label>Gas</label>
-		  <input type="checkbox" class="checkbox" value="Geothermal" checked><label>Geothermal</label>
-		  <input type="checkbox" class="checkbox" value="Coal" checked><label>Coal</label>
-		  <input type="checkbox" class="checkbox" value="Nuclear" checked><label>Nuclear</label>
-		  <input type="checkbox" class="checkbox" value="Waste" checked><label>Waste</label>
-		  <input type="checkbox" class="checkbox" value="Other" checked><label>Other</label>
-		  <button id="resetButton">Reset</button>
+		  <input type="checkbox" class="checkbox" value="Biomass" checked><label class="myLabel" value="Biomass">Biomass</label>
+		  <input type="checkbox" class="checkbox" value="Geothermal" checked><label class="myLabel" value="Geothermal">Geothermal</label>
+		  <input type="checkbox" class="checkbox" value="Hydro" checked><label class="myLabel" value="Hydro">Hydro</label>
+		  <input type="checkbox" class="checkbox" value="Solar" checked><label class="myLabel" value="Solar">Solar</label>
+		  <input type="checkbox" class="checkbox" value="Wind" checked><label class="myLabel" value="Wind">Wind</label>
+		  <input type="checkbox" class="checkbox" value="Coal" checked><label class="myLabel" value="Coal">Coal</label>
+		  <input type="checkbox" class="checkbox" value="Gas" checked><label class="myLabel" value="Gas">Gas</label>
+		  <input type="checkbox" class="checkbox" value="Nuclear" checked><label class="myLabel" value="Nuclear">Nuclear</label>
+		  <input type="checkbox" class="checkbox" value="Oil" checked><label class="myLabel" value="Oil">Oil</label>
+		  <input type="checkbox" class="checkbox" value="Waste" checked><label class="myLabel" value="Waste">Waste</label>
+		  <input type="checkbox" class="checkbox" value="Other" checked><label class="myLabel" value="Other">Other</label>
+		  <button id="setButton">check all</button>
+		  <button id="resetButton">uncheck all</button>
 		</div>
 
 

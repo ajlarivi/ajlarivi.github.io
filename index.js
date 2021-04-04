@@ -9,9 +9,6 @@ L.tileLayer(
     maxZoom: 8,
     }).addTo(map);
 
-// Add a svg layer to the map
-L.svg().addTo(map);
-
 var currentlyDisplayed = 'Renewables'
 // set the dimensions and margins of the graph
 var margin = {top: 10, right: 30, bottom: 35, left: 60},
@@ -40,14 +37,7 @@ svgScatter.append("defs").append("clipPath")
 d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/data/global_power_plant_database_processed.csv", function(plant_data){
 	d3.json("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/data/countries.geojson", function(geoJsonData){
 	d3.json("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/data/country_stats3.json", function(data) {
-	    jsonLayer = L.geoJSON(geoJsonData, {
-			style: function (feature){
-				return {fillOpacity: 0,
-						opacity: 0,
-						color: '#cc2537'}
-			},
-		    onEachFeature: onEachFeature
-		}).addTo(map);
+	    
 
 	  	function clickFeature(e) {
     		var layer = e.target;
@@ -139,7 +129,7 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 
 	    var color = d3.scaleOrdinal()
 	      .domain(["Oil", "Hydro", "Wind", "Solar", "Biomass", "Gas", "Geothermal", "Coal", "nuclear", "waste", "other"])
-	      .range([ "#b15928", "#1f78b4", "#5ca2d1", "#ff7f00", "#229a00", "#bc80bd", "#fdbf6f", "#000000", "#4B0AE1", "#e31a1c", "#6a3d9a",  "#b2df8a"])
+	      .range([ "#D35400", "#2980B9", "#3498DB", "#F39C12", "#27AE60", "#9B59B6", "#F1C40F", "#2C3E50", "#4B0AE1", "#C0392B", "#8E44AD",  "#16A085"])
 
 	    var valueExtent = d3.extent(plant_data, function(d) { return +d.capacity_mw; })
 
@@ -176,6 +166,19 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
       		Tooltip.style("opacity", 0)
     	}
 
+    	jsonLayer = L.geoJSON(geoJsonData, {
+			style: function (feature){
+				return {fillOpacity: 0,
+						opacity: 0,
+						color: '#cc2537'}
+			},
+		    onEachFeature: onEachFeature
+		}).addTo(map);
+
+      	// Add a svg layer to the map
+		L.svg().addTo(map);
+
+
 	    // Add circles:
 	    d3.select("#mapid").select("svg")
 	      .selectAll("myCircles")
@@ -189,12 +192,13 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 	        .style("fill", function(d){ return color(d.primary_fuel) })
 	        .attr("stroke", function(d){ return color(d.primary_fuel) })
 	        .attr("stroke-width", 0)
-	        .attr("fill-opacity", .4)
+	        .attr("fill-opacity", .9)
 	        .style("pointer-events", "auto")
 	       .on("mouseover", mouseover)
       	   .on("mousemove", mousemove)
       	   .on("mouseleave", mouseleave)
 
+      	
 
 		var myZoom = {
 		  start:  map.getZoom(),
@@ -214,7 +218,7 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 
 	        // If the box is check, I show the group
 	        if(checkbox.property("checked")){
-	          d3.selectAll("circle."+fuel_type).transition().duration(1000).style("opacity", 1)//.attr("r", function(d){ return size(d.capacity_mw) })
+	          d3.selectAll("circle."+fuel_type).transition().duration(1000).style("opacity", 0.9)//.attr("r", function(d){ return size(d.capacity_mw) })
 
 	        // Otherwise I hide it
 	        }else{
@@ -222,6 +226,13 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 	        }
 	      })
 	    }
+
+	    d3.selectAll(".myLabel").each(function(d){
+	    	label = d3.select(this)
+	    	console.log(label.text())
+	    	fuel_type = label.text()
+	    	label.style("color", color(fuel_type))
+	    })
 
 
 	    function update_size() {
@@ -264,6 +275,16 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 			})
 
 			d3.select("#mapid").select("svg").selectAll("circle").transition().duration(1000).style("opacity", 0)
+		});
+
+		d3.select("#setButton").on("click", function(d){
+			d3.selectAll(".checkbox").each(function(d){
+				checkbox = d3.select(this);
+				checkbox.property("checked", true)
+			})
+			console.log("TEST")
+
+			d3.select("#mapid").select("svg").selectAll("circle").transition().duration(1000).style("opacity", 1)
 		});
 
 	    map.on('movestart', function(e) {
