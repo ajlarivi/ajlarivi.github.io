@@ -139,7 +139,18 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 	      .range([2, 30])  // Size in pixel
 
 
-	    var Tooltip = d3.select("body")
+	    var Tooltip = d3.select("#mapTooltipDiv")
+      	  .append("div")
+      	  .attr("class", "tooltip")
+      	  .style("opacity", 0)
+      	  .style("background-color", "white")
+      	  .style("border", "solid")
+      	  .style("border-width", "2px")
+      	  .style("border-radius", "5px")
+      	  .style("padding", "5px")
+      	  .style("z-index", "999")
+
+      	var scatterTooltip = d3.select("#scatterTooltipDiv")
       	  .append("div")
       	  .attr("class", "tooltip")
       	  .style("opacity", 0)
@@ -152,18 +163,28 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 
       	// Three function that change the tooltip when user hover / move / leave a cell
     	var mouseover = function(d) {
-    		if(myZoom.end > 6){
+    		if(d.capacity_mw != null){
       			Tooltip.style("opacity", 1)
+      		} else {
+      			scatterTooltip.style("opacity", 1)
       		}
+
     	}
     	var mousemove = function(d) {
       		Tooltip
         	  .html(d.name + "<br>" + "capacity (MW): " + d.capacity_mw + "<br>" + "primary fuel: " + d.primary_fuel)
         	  .style("left", (d3.mouse(this)[0]+10) + "px")
         	  .style("top", (d3.mouse(this)[1]) + "px")
+
+        	scatterTooltip
+        	  .html(d.Country + "<br>total capacity (mw): " + d.Total + "<br>" + currentlyDisplayed + " capacity (mw): " + d[currentlyDisplayed])
+        	  .style("left", (d3.mouse(this)[0]+10) + "px")
+        	  .style("top", (d3.mouse(this)[1]) + "px")
+
     	}
     	var mouseleave = function(d) {
       		Tooltip.style("opacity", 0)
+      		scatterTooltip.style("opacity", 0)
     	}
 
     	jsonLayer = L.geoJSON(geoJsonData, {

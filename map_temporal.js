@@ -13,7 +13,7 @@ L.tileLayer(
 
 
 // set the dimensions and margins of the graph
-var margin = {top: 80, right: 100, bottom: 35, left: 70},
+var margin = {top: 30, right: 50, bottom: 50, left: 70},
     width = 1000 - margin.left - margin.right,
     height = 600 - margin.top - margin.bottom;
 
@@ -129,68 +129,78 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 	    	if(primary_fuel == "Oil"){
 	    		var oilRange = d3.scaleLinear()
 		    	.domain([1,rank_max])
-		    	.range(['#6E2C00', '#FBEEE6'])
+		    	.range(['#3E2723', '#EFEBE9'])		  
 	    		return oilRange(rank)
+
 	    	} else if(primary_fuel == "Hydro"){
 	    		var hydroRange = d3.scaleLinear()
 		    	.domain([1,rank_max])
-		    	.range(['#154360', '#EAF2F8'])
+		    	.range(['#0D47A1', '#EAF2F8'])
 	    		return hydroRange(rank)
+
 	    	} else if(primary_fuel == "Wind"){
 	    		var windRange = d3.scaleLinear()
 		    	.domain([1,rank_max])
-		    	.range(['#1B4F72', '#EBF5FB'])
+		    	.range(['#004D40', '#E0F2F1'])
 	    		return windRange(rank)
+
 	    	} else if(primary_fuel == "Solar"){
 	    		var solarRange = d3.scaleLinear()
 		    	.domain([1,rank_max])
-		    	.range(['#7E5109', '#FEF5E7'])
+		    	.range(['#F57F17', '#FFFDE7'])
 	    		return solarRange(rank)
+
 	    	} else if(primary_fuel == "Biomass"){
 	    		var biomassRange = d3.scaleLinear()
 		    	.domain([1,rank_max])
-		    	.range(['#145A32', '#145A32'])
+		    	.range(['#1B5E20', '#E8F5E9'])
 	    		return biomassRange(rank)
+
 	    	} else if(primary_fuel == "Gas"){
 	    		var gasRange = d3.scaleLinear()
 		    	.domain([1,rank_max])
-		    	.range(['#512E5F', '#FDEDEC'])
+		    	.range(['#880E4F', '#FCE4EC'])
 	    		return gasRange(rank)
+
 	    	} else if(primary_fuel == "Geothermal"){
 	    		var geothermalRange = d3.scaleLinear()
 		    	.domain([1,rank_max])
-		    	.range(['#7D6608 ', '#FEF9E7'])
+		    	.range(['#BF360C ', '#FBE9E7'])
 	    		return geothermalRange(rank)
+
 	    	} else if(primary_fuel == "Coal"){
 	    		var coalRange = d3.scaleLinear()
 		    	.domain([1,rank_max])
-		    	.range(['#17202A ', '#EAECEE'])
+		    	.range(['#263238 ', '#ECEFF1'])
 	    		return coalRange(rank)
+
 	    	} else if(primary_fuel == "Nuclear"){
 	    		var nuclearRange = d3.scaleLinear()
 		    	.domain([1,rank_max])
-		    	.range(['#641E16', '#F9EBEA'])
+		    	.range(['#B71C1C', '#FFEBEE'])
 	    		return nuclearRange(rank)
+
 	    	} else if(primary_fuel == "Waste"){
 	    		var wasteRange = d3.scaleLinear()
 		    	.domain([1,rank_max])
-		    	.range(['#4A235A', '#F4ECF7'])
+		    	.range(['#4A148C', '#F3E5F5'])
 	    		return wasteRange(rank)
+
 	    	} else {
 	    		var otherRange = d3.scaleLinear()
 		    	.domain([1,rank_max])
-		    	.range(['#0B5345', '#E8F6F3'])
+		    	.range(['#827717', '#F9FBE7'])
 	    		return otherRange(rank)
 	    	}
 	    } 
 
 	    function getStrokeColor(rank, rank_extent, primary_fuel){
-	    	if(rank == 1){
+	    	/*if(rank == 1){
 	    		return '#FF06BF'
 	    	}
-	    	else{
+	    	else{*/
 	    		return getColorValue(rank, rank_extent, primary_fuel)
-	    	}
+	    	//}
 	    }
 
 	    function updateCountry(){
@@ -226,7 +236,7 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 	    // Add a scale for bubble size
 	    var size = d3.scaleLinear()
 	      .domain(valueExtent)  // What's in the data
-	      .range([2, 30])  // Size in pixel
+	      .range([2, 35])  // Size in pixel
 
 	    /*var opacity = d3.scaleLinear()
 	       .domain(rank_extent)
@@ -247,21 +257,22 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 
       	// Three function that change the tooltip when user hover / move / leave a cell
     	var mouseoverMap = function(d) {
-      		Tooltip.style("opacity", 1)
-      		
-      		var point = d3.select(this)
+    		var point = d3.select(this)
+    		if(point.style("opacity") == 1){
+	      		Tooltip.style("opacity", 1)
+	      		
+	      		point.style("fill", "#cc2537")
+	      		point.style("stroke", "#cc2537")
 
-      		point.style("fill", "#cc2537")
-      		point.style("stroke", "#cc2537")
+	      		var idnr = point.datum().gppd_idnr
 
-      		var idnr = point.datum().gppd_idnr
-
-      		svgTimeline.selectAll("circle").
-      		filter(function(d){
-      			return d.gppd_idnr == idnr;
-      		})
-      		.style("fill", "#cc2537")
-      		.style("stroke", "#cc2537")
+	      		svgTimeline.selectAll("circle").
+	      		filter(function(d){
+	      			return d.gppd_idnr == idnr;
+	      		})
+	      		.style("fill", "#cc2537")
+	      		.style("stroke", "#cc2537")
+      		}
     	}
     	var mousemoveMap = function(d) {
       		Tooltip
@@ -288,9 +299,8 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
     	}
 
     	var mouseoverTimeline = function(d) {
-    		if(myZoom.end > 6){
-      			Tooltip.style("opacity", 1)
-      		}
+      		Tooltip.style("opacity", 1)
+
       		var point = d3.select(this)
 
       		point.style("fill", "#cc2537")
@@ -328,11 +338,17 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
       		.style("stroke", function(d) { return getStrokeColor(d.plant_rank, d.rank_extent, d.primary_fuel)})
     	}
 
+    	var timelineClick = function(d){
+	    	var point = d3.select(this)
+	    	console.log(point.datum().longitude)
+	    	map.setView([point.datum().latitude, point.datum().longitude], 8)
+	    }
+
 
 	    // Add circles:
 	    d3.select("#mapid").select("svg")
 	      .selectAll("myCircles")
-	      .data(plant_data)
+	      .data(plant_data.reverse())
 	      .enter()
 	      .append("circle")
 	        .attr("class" , function(d){ return d.primary_fuel })
@@ -418,6 +434,16 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 			d3.select("#mapid").select("svg").selectAll("circle").transition().duration(1000).style("opacity", 0)
 		});
 
+		d3.select("#setButton").on("click", function(d){
+			d3.selectAll(".checkbox").each(function(d){
+				checkbox = d3.select(this);
+				checkbox.property("checked", true)
+			})
+			console.log("TEST")
+
+			d3.select("#mapid").select("svg").selectAll("circle").transition().duration(1000).style("opacity", 1)
+		});
+
 	    map.on('movestart', function(e) {
 		  // myZoom.start = map.getZoom();
 		});
@@ -467,6 +493,7 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 	        .on("mouseover", mouseoverTimeline)
       	    .on("mousemove", mousemoveTimeline)
       	    .on("mouseleave", mouseleaveTimeline)
+      	    .on("click", timelineClick)
 
       	map._layers["Albania"].fire('click');
 
@@ -490,6 +517,8 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 	          .on("mouseover", mouseoverTimeline)
       	      .on("mousemove", mousemoveTimeline)
       	      .on("mouseleave", mouseleaveTimeline)
+      	      .on("click", timelineClick)
 	    }
+
 	});
 });
