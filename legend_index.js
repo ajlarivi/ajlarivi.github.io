@@ -8,7 +8,7 @@ solar = "#FBC02D"
 
 biomass = "#388E3C"
 
-gas = "#C2185Bs"
+gas = "#C2185B"
 
 geothermal = "#E64A19"
 

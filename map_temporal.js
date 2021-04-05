@@ -6,9 +6,10 @@ var map = L
 
 // Add a tile to the map = a background. Comes from OpenStreetmap
 L.tileLayer(
-    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+    'https://{s}.tile.jawg.io/jawg-dark/{z}/{x}/{y}{r}.png?access-token={accessToken}', {
+	attribution: '<a href="http://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 8,
+    accessToken: 'fvKMY1WDwbc69b4SxJKRZGu5NCYT4s11hrf0N9u3FUGDDEcTRFeb2RS1Ekxl0jkk'
     }).addTo(map);
 
 

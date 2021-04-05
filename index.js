@@ -4,9 +4,10 @@ var map = L
 
 // Add a tile to the map = a background. Comes from OpenStreetmap
 L.tileLayer(
-    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+    'https://{s}.tile.jawg.io/jawg-dark/{z}/{x}/{y}{r}.png?access-token={accessToken}', {
+	attribution: '<a href="http://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 8,
+    accessToken: 'fvKMY1WDwbc69b4SxJKRZGu5NCYT4s11hrf0N9u3FUGDDEcTRFeb2RS1Ekxl0jkk'
     }).addTo(map);
 
 var currentlyDisplayed = 'Renewables'
@@ -129,7 +130,7 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 
 	    var color = d3.scaleOrdinal()
 	      .domain(["Oil", "Hydro", "Wind", "Solar", "Biomass", "Gas", "Geothermal", "Coal", "nuclear", "waste", "other"])
-	      .range([ "#D35400", "#2980B9", "#3498DB", "#F39C12", "#27AE60", "#9B59B6", "#F1C40F", "#2C3E50", "#4B0AE1", "#C0392B", "#8E44AD",  "#16A085"])
+	      .range([ "#5D4037", "#1976D2", "#00796B", "#FBC02D", "#388E3C", "#C2185B", "#E64A19", "#455A64", "#D32F2F", "#7B1FA2", "#AFB42B"])
 
 	    var valueExtent = d3.extent(plant_data, function(d) { return +d.capacity_mw; })
 
