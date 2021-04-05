@@ -130,7 +130,7 @@ d3.csv("https://raw.githubusercontent.com/ajlarivi/ajlarivi.github.io/master/dat
 
 	    var color = d3.scaleOrdinal()
 	      .domain(["Oil", "Hydro", "Wind", "Solar", "Biomass", "Gas", "Geothermal", "Coal", "Nuclear", "Waste", "Other"])
-	      .range([ "#5D4037", "#1976D2", "#00796B", "#FBC02D", "#388E3C", "#C2185B", "#E64A19", "#455A64", "#D32F2F", "#7B1FA2", "#AFB42B"])
+	      .range([ "#5D4037", "#1976D2", "#00796B", "#FBC02D", "#388E3C", "#C2185B", "#E64A19", "#455A64", "#922B21", "#7B1FA2", "#AFB42B"])
 
 	    var valueExtent = d3.extent(plant_data, function(d) { return +d.capacity_mw; })
 
