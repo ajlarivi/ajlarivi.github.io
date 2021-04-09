@@ -1,5 +1,6 @@
 # ajlarivi.github.io
 * A dashboard visualization of the [Global Power Plant Database](https://datasets.wri.org/dataset/globalpowerplantdatabase) created for SENG480D at the University of Victoria.
+* cursuory data processing was performed in jupyter lab, using pandas.
 * Visualization can be viewied [here](https://ajlarivi.github.io/)
 
 ## Interaction
